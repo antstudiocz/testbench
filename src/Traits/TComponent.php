@@ -34,13 +34,13 @@ trait TComponent
 		$this->__testbench_presenterMock->run(new Mocks\ApplicationRequestMock);
 	}
 
-	protected function checkRenderOutput(IComponent $control, $expected, $renderParameters = [])
+	protected function checkRenderOutput(IComponent $control, $expected, $renderParameters = [], $renderMethod = 'render')
 	{
 		if (!$control->getParent()) {
 			$this->attachToPresenter($control);
 		}
 		ob_start();
-		$control->render(...$renderParameters);
+		$control->$renderMethod(...$renderParameters);
 		if (is_file($expected)) {
 			\Tester\Assert::matchFile($expected, ob_get_clean());
 		} else {
