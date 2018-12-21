@@ -46,6 +46,9 @@ class TComponentTest extends \Tester\TestCase
 		$this->attachToPresenter($control = new \Component);
 		$this->checkRenderOutput($control, '<strong>OK</strong>');
 		$this->checkRenderOutput($control, __DIR__ . '/Component.expected');
+
+		$this->checkRenderOutput($control, '<strong>OKB</strong>', [], 'renderB');
+		$this->checkRenderOutput($control, __DIR__ . '/ComponentB.expected', [], 'renderB');
 	}
 
 	public function testMultipleAttaches()
