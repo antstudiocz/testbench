@@ -30,9 +30,15 @@ class TComponentTest extends \Tester\TestCase
 		$this->checkRenderOutput($control, '<strong>OK</strong>');
 		$this->checkRenderOutput($control, __DIR__ . '/Component.expected');
 
+		$this->checkRenderOutput($control, '<strong>OKB</strong>', [], 'renderB');
+		$this->checkRenderOutput($control, __DIR__ . '/ComponentB.expected', [], 'renderB');
+
 		$control = new \ComponentWithParameters();
 		$this->checkRenderOutput($control, '1', [1]);
 		$this->checkRenderOutput($control, '12', [1, 2]);
+
+		$this->checkRenderOutput($control, '1B', [1], 'renderB');
+		$this->checkRenderOutput($control, '12B', [1, 2], 'renderB');
 	}
 
 	public function testRenderWithExplicitAttach()
@@ -40,6 +46,9 @@ class TComponentTest extends \Tester\TestCase
 		$this->attachToPresenter($control = new \Component);
 		$this->checkRenderOutput($control, '<strong>OK</strong>');
 		$this->checkRenderOutput($control, __DIR__ . '/Component.expected');
+
+		$this->checkRenderOutput($control, '<strong>OKB</strong>', [], 'renderB');
+		$this->checkRenderOutput($control, __DIR__ . '/ComponentB.expected', [], 'renderB');
 	}
 
 	public function testMultipleAttaches()
