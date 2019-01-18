@@ -14,7 +14,7 @@
     }
   ],
   "require": {
-    "php": ">=7.0.0",
+    "php": ">=7.1",
     "kdyby/fake-session": "^2.1",
     "nette/application": "^2.4 || ^v3.0",
     "nette/bootstrap": "^2.4 || ^v3.0",
