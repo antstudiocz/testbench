@@ -26,6 +26,10 @@ trait TComponent
 		}
 		$this->__testbench_presenterMock->onStartup[] = function (Mocks\PresenterMock $presenter) use ($component, $name) {
 			try {
+				$componentToReplace = $presenter->getComponent($name, FALSE);
+				if ($componentToReplace) {
+					$presenter->removeComponent($componentToReplace);
+				}
 				$presenter->removeComponent($component);
 			} catch (\Nette\InvalidArgumentException $exc) {
 			}
