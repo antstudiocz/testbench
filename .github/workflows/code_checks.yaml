@@ -20,7 +20,7 @@ jobs:
 
     strategy:
       matrix:
-        php: ['7.2', '7.3', '7.4']
+        php: ['8.0', '7.4']
       fail-fast: false
 
     steps:
@@ -60,7 +60,7 @@ jobs:
 
     strategy:
       matrix:
-        php: ['7.2', '7.3', '7.4']
+        php: ['8.0', '7.4']
       fail-fast: false
 
     steps:
@@ -100,7 +100,7 @@ jobs:
 
     strategy:
       matrix:
-        php: ['7.2', '7.3', '7.4']
+        php: ['8.0', '7.4']
       fail-fast: false
 
     steps:
@@ -140,7 +140,7 @@ jobs:
 
     strategy:
       matrix:
-        php: ['7.2', '7.3', '7.4']
+        php: ['8.0', '7.4']
       fail-fast: false
 
     steps:
