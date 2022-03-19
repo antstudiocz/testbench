@@ -2,7 +2,7 @@ database:
 	default:
 		dsn: 'mysql:host=127.0.0.1;dbname=information_schema'
 		user: root
-		password: root
+		password:
 		options: [PDO::MYSQL_ATTR_COMPRESS = true]
 
 
@@ -14,7 +14,7 @@ doctrine:
 		dbname: information_schema
 		driver: pdo_mysql
 		user: root
-		password: root
+		password:
 
 
 extensions:
