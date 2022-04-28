@@ -1,0 +1,162 @@
+on: [push, pull_request]
+
+jobs:
+  tests_M_RL0:
+    name: PHP ${{ matrix.php }} tests MySql RUNLEVEL 0
+    runs-on: ubuntu-latest
+
+    env:
+      DB: "mysql"
+      RUNLEVEL: 0
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_DATABASE: tests
+        ports:
+          - 3306:3306
+
+    strategy:
+      matrix:
+        php: ['8.0', '7.4']
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      - run: composer selfupdate 1.10.25 --no-progress
+      - run: composer install --no-progress --prefer-dist --ignore-platform-reqs
+      - run: mkdir tests/_temp
+      - run: cp tests/_helpers/mysql.neon tests/tests.local.neon
+      - run: src/run-tests --bootstrap tests/bootstrap.php
+      - if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: output
+          path: tests/**/output
+
+  tests_M_RL10:
+    name: PHP ${{ matrix.php }} tests MySql RUNLEVEL 10
+    runs-on: ubuntu-latest
+
+    env:
+      DB: "mysql"
+      RUNLEVEL: 0
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_DATABASE: tests
+        ports:
+          - 3306:3306
+
+    strategy:
+      matrix:
+        php: ['8.0', '7.4']
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      - run: composer selfupdate 1.10.25 --no-progress
+      - run: composer install --no-progress --prefer-dist --ignore-platform-reqs
+      - run: mkdir tests/_temp
+      - run: cp tests/_helpers/mysql.neon tests/tests.local.neon
+      - run: src/run-tests --bootstrap tests/bootstrap.php
+      - if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: output
+          path: tests/**/output
+
+  tests_P_RL0:
+    name: PHP ${{ matrix.php }} tests PostgreSql RUNLEVEL 0
+    runs-on: ubuntu-latest
+
+    env:
+      DB: "mysql"
+      RUNLEVEL: 0
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_DATABASE: tests
+        ports:
+          - 3306:3306
+
+    strategy:
+      matrix:
+        php: ['8.0', '7.4']
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      - run: composer selfupdate  1.10.25 --no-progress
+      - run: composer install --no-progress --prefer-dist --ignore-platform-reqs
+      - run: mkdir tests/_temp
+      - run: cp tests/_helpers/mysql.neon tests/tests.local.neon
+      - run: src/run-tests --bootstrap tests/bootstrap.php
+      - if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: output
+          path: tests/**/output
+
+  tests_P_RL10:
+    name: PHP ${{ matrix.php }} tests PostgreSql RUNLEVEL 10
+    runs-on: ubuntu-latest
+
+    env:
+      DB: "mysql"
+      RUNLEVEL: 0
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_DATABASE: tests
+        ports:
+          - 3306:3306
+
+    strategy:
+      matrix:
+        php: ['8.0', '7.4']
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      - run: composer selfupdate 1.10.25 --no-progress
+      - run: composer install --no-progress --prefer-dist --ignore-platform-reqs
+      - run: mkdir tests/_temp
+      - run: cp tests/_helpers/mysql.neon tests/tests.local.neon
+      - run: src/run-tests --bootstrap tests/bootstrap.php
+      - if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: output
+          path: tests/**/output
