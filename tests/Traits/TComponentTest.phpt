@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Traits;
 
 use Tester\Assert;
 
-require getenv('BOOTSTRAP');
+require __DIR__ . '/../bootstrap.php';
+
+//require getenv('BOOTSTRAP');
 
 /**
  * @testCase
@@ -18,10 +22,10 @@ class TComponentTest extends \Tester\TestCase
 	{
 		$control = new \Component;
 		Assert::exception(function () use ($control) {
-			$control->lookup('Nette\Application\IPresenter');
-		}, 'Nette\InvalidStateException', "Component '' is not attached to 'Nette\\Application\\IPresenter'.");
+			$control->lookup(\Nette\Application\IPresenter::class);
+		}, \Nette\InvalidStateException::class, "Component of type 'Component' is not attached to '" . \Nette\Application\IPresenter::class . "'.");
 		$this->attachToPresenter($control);
-		Assert::type('Testbench\CustomPresenterMock', $control->lookup('Nette\Application\IPresenter'));
+		Assert::type(\Testbench\CustomPresenterMock::class, $control->lookup(\Nette\Application\IPresenter::class));
 	}
 
 	public function testRender()
@@ -74,18 +78,18 @@ class TComponentTest extends \Tester\TestCase
 	{
 		$control = new \Component;
 		$this->attachToPresenter($control);
-		Assert::type('Testbench\CustomPresenterMock', $control->lookup('Nette\Application\IPresenter'));
+		Assert::type(\Testbench\CustomPresenterMock::class, $control->lookup(\Nette\Application\IPresenter::class));
 		$this->attachToPresenter($control);
-		Assert::type('Testbench\CustomPresenterMock', $control->lookup('Nette\Application\IPresenter'));
+		Assert::type(\Testbench\CustomPresenterMock::class, $control->lookup(\Nette\Application\IPresenter::class));
 		\Tester\Environment::$checkAssertions = FALSE;
 	}
 
 	public function testMultipleAttachesDifferentComponents()
 	{
 		$this->attachToPresenter($control = new \Component, 'name_1');
-		Assert::type('Testbench\CustomPresenterMock', $control->lookup('Nette\Application\IPresenter'));
+		Assert::type(\Testbench\CustomPresenterMock::class, $control->lookup(\Nette\Application\IPresenter::class));
 		$this->attachToPresenter($control = new \Component, 'name_2');
-		Assert::type('Testbench\CustomPresenterMock', $control->lookup('Nette\Application\IPresenter'));
+		Assert::type(\Testbench\CustomPresenterMock::class, $control->lookup(\Nette\Application\IPresenter::class));
 		\Tester\Environment::$checkAssertions = FALSE;
 	}
 

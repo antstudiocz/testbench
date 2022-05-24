@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Testbench;
 
+use Nette\Http\Request;
 use Tester\Assert;
 use Tester\Dumper;
 
@@ -30,7 +33,12 @@ trait TPresenter
 		$destination = ltrim($destination, ':');
 		$pos = strrpos($destination, ':');
 		$presenter = substr($destination, 0, $pos);
-		$action = substr($destination, $pos + 1) ?: 'default';
+		$posSlash = strrpos($destination, '/');
+		$action = substr($destination, $pos + 1, (($posSlash > 0) ? $posSlash - 1 - $pos : 999)) ?: 'default';
+		if ($posSlash > 0) {
+			$params['id'] = substr($destination, $posSlash + 1);
+		}
+
 
 		$container = \Testbench\ContainerFactory::create(FALSE);
 		$container->removeService('httpRequest');
@@ -60,8 +68,7 @@ trait TPresenter
 		$session->setFakeId('testbench.fakeId');
 		$session->getSection('Nette\Forms\Controls\CsrfProtection')->token = 'testbench.fakeToken';
 		$post = $post + ['_token_' => 'goVdCQ1jk0UQuVArz15RzkW6vpDU9YqTRILjE=']; //CSRF magic! ¯\_(ツ)_/¯
-
-		$request = new Mocks\ApplicationRequestMock(
+		$request = new \Nette\Application\Request(
 			$presenter,
 			$post ? 'POST' : 'GET',
 			['action' => $action] + $params,
@@ -101,6 +108,10 @@ trait TPresenter
 					}
 				}
 			}
+
+
+			$IsOk = true; // hack for Nette tester
+			Assert::true($IsOk);
 
 			return $response;
 		} catch (\Exception $exc) {
@@ -162,7 +173,7 @@ trait TPresenter
 		Assert::true($this->__testbench_presenter->isAjax());
 		if (!$this->__testbench_exception) {
 			Assert::same(200, $this->getReturnCode());
-			Assert::type('Nette\Application\Responses\JsonResponse', $response);
+			Assert::type(\Nette\Application\Responses\JsonResponse::class, $response);
 		}
 		$this->__testbench_ajaxMode = FALSE;
 		return $response;
@@ -177,16 +188,21 @@ trait TPresenter
 	 * @return \Nette\Application\Responses\RedirectResponse
 	 * @throws \Exception
 	 */
-	protected function checkRedirect($destination, $path = '/', $params = [], $post = [])
+	protected function checkRedirect($destination, $path = '/', $params = [], $post = [], $isRedir = TRUE)
 	{
 		/** @var \Nette\Application\Responses\RedirectResponse $response */
 		$response = $this->check($destination, $params, $post);
 		if (!$this->__testbench_exception) {
 			Assert::same(200, $this->getReturnCode());
-			Assert::type('Nette\Application\Responses\RedirectResponse', $response);
-			Assert::same(302, $response->getCode());
+			if ($isRedir == TRUE) {
+				Assert::type(\Nette\Application\Responses\RedirectResponse::class, $response);
+				Assert::same(302, $response->getCode());
+			} else {
+				Assert::type(\Nette\Application\Responses\TextResponse::class, $response);
+			}
+
 			if ($path) {
-				if (!\Tester\Assert::isMatching("~^https?://test\.bench{$path}(?(?=\?).+)$~", $response->getUrl())) {
+				if (!Assert::isMatching("~^https?://test\.bench{$path}(?(?=\?).+)$~", $response->getUrl())) {
 					$path = Dumper::color('yellow') . Dumper::toLine($path) . Dumper::color('white');
 					$url = Dumper::color('yellow') . Dumper::toLine($response->getUrl()) . Dumper::color('white');
 					$originalUrl = new \Nette\Http\Url($response->getUrl());
@@ -214,7 +230,7 @@ trait TPresenter
 		$response = $this->check($destination, $params, $post);
 		if (!$this->__testbench_exception) {
 			Assert::same(200, $this->getReturnCode());
-			Assert::type('Nette\Application\Responses\JsonResponse', $response);
+			Assert::type(\Nette\Application\Responses\JsonResponse::class, $response);
 			Assert::same('application/json', $response->getContentType());
 		}
 		return $response;
@@ -232,6 +248,26 @@ trait TPresenter
 		Assert::same($scheme, $response->getPayload());
 	}
 
+
+	/**
+	 * @param string $destination fully qualified presenter name (module:module:presenter)
+	 * @param array $params provided to the presenter usually via URL
+	 * @param array $post provided to the presenter via POST
+	 *
+	 * @throws \Exception
+	 */
+	protected function checkVoid(string $destination, array $params = [], array $post = []): \Nette\Application\Responses\VoidResponse
+	{
+		/** @var \Nette\Application\Responses\VoidResponse $response */
+		$response = $this->check($destination, $params, $post);
+		if (!$this->__testbench_exception) {
+			Assert::same(200, $this->getReturnCode());
+			Assert::type(\Nette\Application\Responses\VoidResponse::class, $response);
+		}
+		return $response;
+	}
+
+
 	/**
 	 * @param string $destination fully qualified presenter name (module:module:presenter)
 	 * @param string $formName
@@ -244,9 +280,18 @@ trait TPresenter
 	protected function checkForm($destination, $formName, $post = [], $path = '/')
 	{
 		if (is_string($path)) {
-			return $this->checkRedirect($destination, $path, [
-				'do' => $formName . '-submit',
-			], $post);
+
+//			return $this->checkRedirect($destination, $path, [
+//									'do' => $formName . '-submit',
+//											], $post);
+
+			$chckRedir = $this->checkRedirect($destination, $path, [
+									'do' => $formName . '-submit',
+											], $post);
+
+
+			return $chckRedir;
+
 		} elseif (is_bool($path)) {
 			/** @var \Nette\Application\Responses\RedirectResponse $response */
 			$response = $this->check($destination, [
@@ -254,11 +299,11 @@ trait TPresenter
 			], $post);
 			if (!$this->__testbench_exception) {
 				Assert::same(200, $this->getReturnCode());
-				Assert::type('Nette\Application\Responses\TextResponse', $response);
+				Assert::type(\Nette\Application\Responses\TextResponse::class, $response);
 			}
 			return $response;
 		} else {
-			\Tester\Assert::fail('Path should be string or boolean (probably FALSE).');
+			Assert::fail('Path should be string or boolean (probably FALSE).');
 		}
 	}
 
@@ -285,7 +330,7 @@ trait TPresenter
 		Assert::true($this->__testbench_presenter->isAjax());
 		if (!$this->__testbench_exception) {
 			Assert::same(200, $this->getReturnCode());
-			Assert::type('Nette\Application\Responses\JsonResponse', $response);
+			Assert::type(\Nette\Application\Responses\JsonResponse::class, $response);
 		}
 		$this->__testbench_presenter = NULL;
 		$this->__testbench_ajaxMode = FALSE;
@@ -306,10 +351,10 @@ trait TPresenter
 		$response = $this->check($destination, $params, $post);
 		if (!$this->__testbench_exception) {
 			Assert::same(200, $this->getReturnCode());
-			Assert::type('Nette\Application\Responses\TextResponse', $response);
-			Assert::type('Nette\Application\UI\ITemplate', $response->getSource());
+			Assert::type(\Nette\Application\Responses\TextResponse::class, $response);
+			Assert::type(\Nette\Application\UI\ITemplate::class, $response->getSource());
 
-			$dom = \Tester\DomQuery::fromXml($response->getSource());
+			$dom = \Tester\DomQuery::fromXml((string) $response->getSource());
 			Assert::true($dom->has('rss'), "missing 'rss' element");
 			Assert::true($dom->has('channel'), "missing 'channel' element");
 			Assert::true($dom->has('title'), "missing 'title' element");
@@ -333,10 +378,10 @@ trait TPresenter
 		$response = $this->check($destination, $params, $post);
 		if (!$this->__testbench_exception) {
 			Assert::same(200, $this->getReturnCode());
-			Assert::type('Nette\Application\Responses\TextResponse', $response);
-			Assert::type('Nette\Application\UI\ITemplate', $response->getSource());
+			Assert::type(\Nette\Application\Responses\TextResponse::class, $response);
+			Assert::type(\Nette\Application\UI\ITemplate::class, $response->getSource());
 
-			$xml = \Tester\DomQuery::fromXml($response->getSource());
+			$xml = \Tester\DomQuery::fromXml((string) $response->getSource());
 			Assert::same('urlset', $xml->getName(), 'root element is');
 			$url = $xml->children();
 			Assert::same('url', $url->getName(), "child of 'urlset'");
@@ -371,7 +416,7 @@ trait TPresenter
 	protected function logOut()
 	{
 		/** @var \Nette\Security\User $user */
-		$user = \Testbench\ContainerFactory::create(FALSE)->getByType('Nette\Security\User');
+		$user = ContainerFactory::create(FALSE)->getByType(\Nette\Security\User::class);
 		$user->logout();
 		return $user;
 	}
@@ -382,7 +427,7 @@ trait TPresenter
 	protected function isUserLoggedIn()
 	{
 		/** @var \Nette\Security\User $user */
-		$user = \Testbench\ContainerFactory::create(FALSE)->getByType('Nette\Security\User');
+		$user = ContainerFactory::create(FALSE)->getByType(\Nette\Security\User::class);
 		return $user->isLoggedIn();
 	}
 

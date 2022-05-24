@@ -1,25 +1,31 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Traits;
 
+use Testbench\ContainerFactory;
+use Testbench\Mocks\HttpRequestMock;
 use Tester\Assert;
 use Tester\Dumper;
 
-require getenv('BOOTSTRAP');
+require __DIR__ . '/../bootstrap.php';
+
+//require getenv('BOOTSTRAP');
 
 /**
  * @testCase
  */
 class TPresenterTest extends \Testbench\CustomPresenterTestCase
 {
-
+	use \Testbench\TCompiledContainer;
 	public function testClassicRender()
 	{
 		$this->checkAction('Presenter:default');
 
 		Assert::error(function () {
 			$this->checkAction('Presenter:variabledoesntexist');
-		}, E_NOTICE, 'Undefined variable: doesnexist');
+		}, E_WARNING, 'Undefined variable $doesnexist');
 	}
 
 	public function testClassicRenderShort()
@@ -41,7 +47,7 @@ class TPresenterTest extends \Testbench\CustomPresenterTestCase
 	{
 		Assert::exception(function () {
 			$this->checkAction('Presenter:404');
-		}, 'Nette\Application\BadRequestException');
+		}, \Nette\Application\BadRequestException::class);
 		Assert::same(404, $this->getReturnCode());
 	}
 
@@ -49,7 +55,7 @@ class TPresenterTest extends \Testbench\CustomPresenterTestCase
 	{
 		Assert::exception(function () {
 			$this->checkAction('Presenter:fail');
-		}, 'Nette\Application\BadRequestException');
+		}, \Nette\Application\BadRequestException::class);
 		Assert::same(500, $this->getReturnCode());
 	}
 
@@ -57,8 +63,8 @@ class TPresenterTest extends \Testbench\CustomPresenterTestCase
 	{
 		Assert::exception(function () {
 			$this->checkAction('Presenter:exception');
-		}, 'Latte\CompileException');
-		Assert::type('Latte\CompileException', $this->getException());
+		}, \Latte\CompileException::class);
+		Assert::type(\Latte\CompileException::class, $this->getException());
 	}
 
 	public function testRedirect()
@@ -81,7 +87,7 @@ class TPresenterTest extends \Testbench\CustomPresenterTestCase
 			$this->checkRedirect('Presenter:redirectRss', '/x/y/rs', [
 				'flashMessage' => FALSE,
 			]);
-		}, 'Tester\AssertException', str_repeat(' ', 4) . "path $path doesn't match\n$url\nafter redirect");
+		}, \Tester\AssertException::class, str_repeat(' ', 4) . "path $path doesn't match\n$url\nafter redirect");
 	}
 
 	public function testJsonOutput()
@@ -93,7 +99,7 @@ class TPresenterTest extends \Testbench\CustomPresenterTestCase
 		]);
 		Assert::exception(function () {
 			$this->checkJsonScheme('Presenter:json', ['string']);
-		}, 'Tester\AssertException');
+		}, \Tester\AssertException::class);
 	}
 
 	public function testRss()
@@ -160,7 +166,7 @@ class TPresenterTest extends \Testbench\CustomPresenterTestCase
 	{
 		Assert::null($this->getPresenter()); //presenter is not open yet
 		$this->checkAction('Presenter:default');
-		Assert::type('Nette\Application\UI\Presenter', $this->getPresenter()); //presenter is not open yet
+		Assert::type(\Nette\Application\UI\Presenter::class, $this->getPresenter()); //presenter is not open yet
 	}
 
 	public function testForm()
@@ -171,20 +177,20 @@ class TPresenterTest extends \Testbench\CustomPresenterTestCase
 
 		Assert::exception(function () {
 			$this->checkForm('Presenter:default', 'form1', []);
-		}, 'Tester\AssertException', "field 'test' returned this error(s):\n  - This field is required.");
+		}, \Tester\AssertException::class, "field 'test' returned this error(s):\n  - This field is required.");
 
 		Assert::exception(function () {
 			$this->checkForm('Presenter:default', 'form1', [
 				'test' => 'test',
 				'error' => 'FORM ERROR',
 			]);
-		}, 'Tester\AssertException', "Intended error: FORM ERROR");
+		}, \Tester\AssertException::class, 'Intended error: FORM ERROR');
 
 		Assert::exception(function () {
 			$this->checkForm('Presenter:default', 'form1', [
 				'test' => 'test',
 			]); //missing path
-		}, 'Tester\AssertException');
+		}, \Tester\AssertException::class);
 	}
 
 	public function testFormDifferentDestination()
@@ -235,6 +241,14 @@ class TPresenterTest extends \Testbench\CustomPresenterTestCase
 		Assert::same(['ok'], $response->getPayload());
 	}
 
+	/* fail on CSRF protection */
+	public function testAjaxSignalCSRF()
+	{
+		/** @var \Nette\Application\Responses\JsonResponse $response */
+		$response = $this->checkAjaxSignal('Presenter:default', 'ajaxSignalCSRF');
+		Assert::notSame(['ok'], $response->getPayload());
+	}
+
 	public function testFormEnhanced()
 	{
 		$this->checkForm('Presenter:default', 'form1', [
@@ -256,7 +270,7 @@ class TPresenterTest extends \Testbench\CustomPresenterTestCase
 					\Nette\Forms\Form::REQUIRED => TRUE,
 				],
 			], '/x/y');
-		}, 'Tester\AssertException', "field 'test' should be defined as required, but it's not");
+		}, \Tester\AssertException::class, "field 'test' should be defined as required, but it's not");
 	}
 
 	public function testUserLoggedIn()

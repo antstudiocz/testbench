@@ -1,0 +1,42 @@
+database:
+	default:
+		dsn: 'mysql:host=mysql;dbname=information_schema'
+		user: root
+		password: mysql
+		options: [PDO::MYSQL_ATTR_COMPRESS = true]
+
+
+doctrine:
+	metadata:
+		App: %appDir%
+	default:
+		host: mysql
+		dbname: information_schema
+		driver: pdo_mysql
+		user: root
+		password: mysql
+
+
+dbal:
+	driver: mysqli
+	host: mysql
+	database: information_schema
+	username: root
+	password: mysql
+
+
+extensions:
+	migrations: Nettrine\Migrations\DI\MigrationsExtension
+#- Symnedi\EventDispatcher\DI\EventDispatcherExtension #migrations
+
+
+migrations:
+	directory: %testsDir%/_helpers/Migrations
+	namespace: Testbench\Migrations
+
+
+testbench:
+	migrations: no
+	sqls:
+		- %testsDir%/_helpers/sqls/mysql_1.sql
+		- %testsDir%/_helpers/sqls/mysql_2.sql

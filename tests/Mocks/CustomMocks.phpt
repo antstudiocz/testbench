@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Mocks;
 
 use Tester\Assert;
@@ -16,11 +18,11 @@ class CustomMocks extends \Tester\TestCase
 
 	public function testCustomMocks()
 	{
-		Assert::type('Testbench\Mocks\PresenterMock', $this->getService('Testbench\Mocks\PresenterMock'));
-		Assert::type('Testbench\CustomPresenterMock', $this->getService('Testbench\Mocks\PresenterMock'));
+		Assert::type(\Testbench\Mocks\PresenterMock::class, $this->getService(\Testbench\Mocks\PresenterMock::class));
+		Assert::type(\Testbench\CustomPresenterMock::class, $this->getService(\Testbench\Mocks\PresenterMock::class));
 
-		Assert::notSame('Testbench\Mocks\PresenterMock', get_class($this->getService('Testbench\Mocks\PresenterMock')));
-		Assert::same('Testbench\CustomPresenterMock', get_class($this->getService('Testbench\Mocks\PresenterMock')));
+		Assert::notSame(\Testbench\Mocks\PresenterMock::class, get_class($this->getService(\Testbench\Mocks\PresenterMock::class)));
+		Assert::same(\Testbench\CustomPresenterMock::class, get_class($this->getService(\Testbench\Mocks\PresenterMock::class)));
 	}
 
 }

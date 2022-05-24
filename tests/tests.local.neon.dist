@@ -17,6 +17,7 @@ doctrine:
 
 extensions:
 	migrations: Nettrine\Migrations\DI\MigrationsExtension
+	- Symnedi\EventDispatcher\DI\EventDispatcherExtension #migrations
 
 migrations:
 	directory: %testsDir%/_helpers/Migrations
@@ -27,7 +28,7 @@ testbench:
 	url: http://test.bench/
 	migrations: yes
 	shareDatabase: no
-    dbprefix: _testbench_
+	dbprefix: _testbench_
 	sqls:
 		- %testsDir%/_helpers/sqls/mysql_1.sql
 		- %testsDir%/_helpers/sqls/mysql_2.sql

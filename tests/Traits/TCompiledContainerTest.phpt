@@ -4,7 +4,9 @@ namespace Tests\Traits;
 
 use Tester\Assert;
 
-require getenv('BOOTSTRAP');
+require __DIR__ . '/../bootstrap.php';
+
+//require getenv('BOOTSTRAP');
 
 /**
  * @testCase
@@ -16,21 +18,21 @@ class TCompiledContainerTest extends \Tester\TestCase
 
 	public function testGetContainer()
 	{
-		Assert::type('Nette\DI\Container', $container = $this->getContainer());
+		Assert::type(\Nette\DI\Container::class, $container = $this->getContainer());
 		Assert::same($container, $this->getContainer());
 	}
 
 	public function testGetService()
 	{
-		Assert::type('Nette\Application\Application', $this->getService('Nette\Application\Application'));
+		Assert::type(\Nette\Application\Application::class, $this->getService(\Nette\Application\Application::class));
 	}
 
 	public function testRefreshContainer()
 	{
-		Assert::type('Nette\DI\Container', $container = $this->getContainer());
+		Assert::type(\Nette\DI\Container::class, $container = $this->getContainer());
 		Assert::same($container, $this->getContainer());
 		$refreshedContainer = $this->refreshContainer();
-		Assert::type('Nette\DI\Container', $refreshedContainer);
+		Assert::type(\Nette\DI\Container::class, $refreshedContainer);
 		Assert::notSame($container, $refreshedContainer);
 	}
 
@@ -39,15 +41,15 @@ class TCompiledContainerTest extends \Tester\TestCase
 		$container = $this->getContainer();
 		Assert::error(function () use ($container) {
 			$container->parameters['test'];
-		}, 'E_NOTICE', 'Undefined index: test');
+		}, 'E_WARNING', 'Undefined array key "test"');
 
 		$refreshedContainer = $this->refreshContainer([
-			'extensions' => ['test' => 'Testbench\FakeExtension'],
+			'extensions' => ['test' => \Testbench\FakeExtension::class],
 			'services' => ['test' => 'Testbench\FakeExtension'],
 			'test' => ['xxx' => ['yyy']],
 		]);
 		Assert::same(['xxx' => ['yyy']], $refreshedContainer->parameters['test']);
-		Assert::type('Testbench\FakeExtension', $extension = $refreshedContainer->getService('test'));
+		Assert::type(\Testbench\FakeExtension::class, $extension = $refreshedContainer->getService('test'));
 		Assert::true($extension::$tested);
 
 		Assert::notSame($container, $refreshedContainer);

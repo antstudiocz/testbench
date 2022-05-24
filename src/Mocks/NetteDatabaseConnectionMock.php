@@ -16,7 +16,7 @@ class NetteDatabaseConnectionMock extends \Nette\Database\Connection implements 
 	public function __construct($dsn, $user = NULL, $password = NULL, array $options = NULL)
 	{
 		$container = \Testbench\ContainerFactory::create(FALSE);
-		$this->onConnect[] = function (NetteDatabaseConnectionMock $connection) use ($container) {
+		$this->onConnect[] = function (self $connection) use ($container) {
 			if ($this->__testbench_databaseName !== NULL) { //already initialized (needed for pgsql)
 				return;
 			}
@@ -46,7 +46,6 @@ class NetteDatabaseConnectionMock extends \Nette\Database\Connection implements 
 	{
 		$config = $container->parameters['testbench'];
 		$this->__testbench_databaseName = $config['dbprefix'] . getenv(\Tester\Environment::THREAD);
-
 		$this->__testbench_database_drop($connection, $container);
 		$this->__testbench_database_create($connection, $container);
 
@@ -128,6 +127,11 @@ class NetteDatabaseConnectionMock extends \Nette\Database\Connection implements 
 		$options = $dbr->getProperty('options');
 		$options->setAccessible(TRUE);
 		$options = $options->getValue($connection);
+
+		echo "CCC";
+		print_r($params);
+		exit;
+
 
 		$connection->disconnect();
 		$connection->__construct($dsn, $params[1], $params[2], $options);

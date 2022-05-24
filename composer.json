@@ -15,28 +15,29 @@
   ],
   "require": {
     "php": "^7.4 || ^8.0",
-    "kdyby/fake-session": "^2.1",
     "nette/application": "^2.4 || ^v3.0",
     "nette/bootstrap": "^2.4 || ^v3.0",
     "nette/di": "^2.4 || ^v3.0",
     "nette/safe-stream": "^2.3",
     "nette/security": "^2.4 || ^v3.0",
     "nette/tester": "^2.0",
-    "nette/utils": "^2.4 || ^v3.0"
+    "nette/utils": "^2.4 || ^v3.0",
+    "ijvo/kdyby-fake-session": "v3.1"
   },
   "require-dev": {
     "latte/latte": "^2.4",
     "nette/forms": "^2.4 || ^v3.0",
     "nette/robot-loader": "^2.4 || ^v3.0",
     "tracy/tracy": "^2.4",
-    "kdyby/doctrine": "^3.1",
-    "kdyby/doctrine-cache": "^2.5",
-    "doctrine/common": "^2.13.1",
+    "dek-cz/doctrine": "^3.4.0",
+    "dek-cz/doctrine-cache": "^3.1.2",
+    "doctrine/common": "^3.0",
     "kdyby/doctrine-dbal-batchimport": "dev-master",
-    "kdyby/events": "^3.0",
+    "kdyby/events": "^5.0.1",
     "nette/database": "^2.4 || ^v3.0",
-    "nettrine/migrations": "^0.3",
-    "nextras/migrations": "dev-master"
+    "nettrine/migrations": "^0.8",
+    "nextras/migrations": "dev-master",
+    "contributte/console": "^0.10.x-dev"
   },
   "autoload": {
     "psr-4": {
