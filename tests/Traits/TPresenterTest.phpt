@@ -22,10 +22,15 @@ class TPresenterTest extends \Testbench\CustomPresenterTestCase
 	public function testClassicRender()
 	{
 		$this->checkAction('Presenter:default');
-
-		Assert::error(function () {
-			$this->checkAction('Presenter:variabledoesntexist');
-		}, E_WARNING, 'Undefined variable $doesnexist');
+		if (PHP_VERSION_ID >= 80000) {
+			Assert::error(function () {
+				$this->checkAction('Presenter:variabledoesntexist');
+			}, E_WARNING, 'Undefined variable $doesnexist');
+		} else {
+			Assert::error(function () {
+				$this->checkAction('Presenter:variabledoesntexist');
+			}, E_NOTICE, 'Undefined variable: doesnexist');
+		}
 	}
 
 	public function testClassicRenderShort()
