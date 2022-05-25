@@ -9,8 +9,6 @@ class NdbComponentWithDatabaseAccess extends \Nette\Application\UI\Control
 
 	public function __construct(\Nette\Database\Context $context)
 	{
-//		parent::__construct();   //TODO: CHCECK THIS
-
 		$connection = $context->getConnection();
 		$returnActualDatabaseName = function () use ($connection) { //getSupplementalDriver is performing first connect (behaves lazy)
 			preg_match('~.*dbname=([a-z0-9_-]+)~i', $connection->getDsn(), $matches);

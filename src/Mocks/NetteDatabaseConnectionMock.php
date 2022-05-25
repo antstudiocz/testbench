@@ -128,11 +128,6 @@ class NetteDatabaseConnectionMock extends \Nette\Database\Connection implements 
 		$options->setAccessible(TRUE);
 		$options = $options->getValue($connection);
 
-		echo "CCC";
-		print_r($params);
-		exit;
-
-
 		$connection->disconnect();
 		$connection->__construct($dsn, $params[1], $params[2], $options);
 		$connection->connect();

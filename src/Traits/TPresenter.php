@@ -281,10 +281,6 @@ trait TPresenter
 	{
 		if (is_string($path)) {
 
-//			return $this->checkRedirect($destination, $path, [
-//									'do' => $formName . '-submit',
-//											], $post);
-
 			$chckRedir = $this->checkRedirect($destination, $path, [
 									'do' => $formName . '-submit',
 											], $post);

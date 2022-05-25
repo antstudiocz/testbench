@@ -33,7 +33,6 @@ class PresenterMock extends \Nette\Application\UI\Presenter
 
 	public function afterRender(): void
 	{
-//		$this->sendPayload();
 		$this->terminate();
 	}
 
