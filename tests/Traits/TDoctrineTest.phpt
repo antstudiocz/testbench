@@ -50,24 +50,15 @@ class TDoctrineTest extends \Tester\TestCase
 		/** @var \Testbench\Mocks\DoctrineConnectionMock $connection */
 		$connection = $this->getEntityManager()->getConnection();
 		$result = $connection->query('SELECT * FROM table_1')->fetchAll();
+		Assert::equal([
+			['id' => '1', 'column_1' => 'value_1', 'column_2' => 'value_2'],
+			['id' => '2', 'column_1' => 'value_1', 'column_2' => 'value_2'],
+			['id' => '3', 'column_1' => 'value_1', 'column_2' => 'value_2'],
+		], $result);
+
 		if ($connection->getDatabasePlatform() instanceof MySqlPlatform) {
-			Assert::same([
-					['id' => '1', 'column_1' => 'value_1', 'column_2' => 'value_2'],
-					['id' => '2', 'column_1' => 'value_1', 'column_2' => 'value_2'],
-					['id' => '3', 'column_1' => 'value_1', 'column_2' => 'value_2'],
-//				[
-//					'id' => '4',
-//					'column_1' => 'from_migration_1',
-//					'column_2' => 'from_migration_2',
-//				],
-							], $result);
 			Assert::match('information_schema', $connection->getDatabase());
 		} else {
-			Assert::same([
-				['id' => 1, 'column_1' => 'value_1', 'column_2' => 'value_2'],
-				['id' => 2, 'column_1' => 'value_1', 'column_2' => 'value_2'],
-				['id' => 3, 'column_1' => 'value_1', 'column_2' => 'value_2'],
-			], $result);
 			Assert::same('_testbench_' . getenv(\Tester\Environment::THREAD), $connection->getDatabase());
 		}
 	}
