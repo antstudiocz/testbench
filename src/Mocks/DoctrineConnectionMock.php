@@ -1,24 +1,34 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Testbench\Mocks;
 
 use Doctrine\Common;
 use Doctrine\DBAL;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
-use Nette\SmartObject;
+use Doctrine\Migrations\MigrationRepository;
+use Doctrine\Migrations\OutputWriter;
+use Nette\UnexpectedValueException;
+use Symfony\Component\Stopwatch\Stopwatch;
 
-/**
- * @method onConnect(DoctrineConnectionMock $self)
- */
 class DoctrineConnectionMock extends \Kdyby\Doctrine\Connection implements \Testbench\Providers\IDatabaseProvider
 {
-
-	use SmartObject;
-
 	private $__testbench_databaseName;
 
 	public $onConnect = [];
+
+	public function onConnect(self $self)
+	{
+		if (is_array($this->onConnect) || $this->onConnect instanceof \Traversable) {
+			foreach ($this->onConnect as $handler) {
+				$handler($self);
+			}
+		} elseif ($this->onConnect !== null) {
+			throw new UnexpectedValueException('Property ' . static::class . '::$onConnect must be array or null, ' . gettype($this->onConnect) . ' given.');
+		}
+	}
 
 	public function connect()
 	{
@@ -52,6 +62,11 @@ class DoctrineConnectionMock extends \Kdyby\Doctrine\Connection implements \Test
 				} else { // always create new test database
 					$this->__testbench_database_setup($connection, $container);
 				}
+			} catch (\Doctrine\Migrations\MigrationException $e) {
+				//  do not throw an exception if there are no migrations
+				if ($e->getCode() !== 4) {
+					\Tester\Assert::fail($e->getMessage());
+				}
 			} catch (\Exception $e) {
 				\Tester\Assert::fail($e->getMessage());
 			}
@@ -80,9 +95,9 @@ class DoctrineConnectionMock extends \Kdyby\Doctrine\Connection implements \Test
 				$migrationsConfig = $container->getByType(\Nettrine\Migrations\ContainerAwareConfiguration::class);
 				$migrationsConfig->__construct($connection);
 				$migrationsConfig->registerMigrationsFromDirectory($migrationsConfig->getMigrationsDirectory());
-				$migration = new \Doctrine\DBAL\Migrations\Migration($migrationsConfig);
+				$migration = new \Doctrine\Migrations\Migrator($migrationsConfig);
 				$migration->migrate($migrationsConfig->getLatestVersion());
-			} else if (interface_exists(\Nextras\Migrations\IConfiguration::class)) {
+			} /*else if (interface_exists(\Nextras\Migrations\IConfiguration::class)) {
 				$config = $container->getByType(\Nextras\Migrations\IConfiguration::class);
 				$finder = new \Nextras\Migrations\Engine\Finder();
 				$extensions = [1 => 'sql'];
@@ -93,7 +108,7 @@ class DoctrineConnectionMock extends \Kdyby\Doctrine\Connection implements \Test
 				foreach ($migrations as $migration) {
 					\Kdyby\Doctrine\Dbal\BatchImport\Helpers::loadFromFile($connection, $migration->path);
 				}
-			}
+			}*/  //TODO: CHCECK THIS
 		}
 
 		if ($persistent === FALSE) {

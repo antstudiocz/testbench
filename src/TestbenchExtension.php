@@ -2,6 +2,9 @@
 
 namespace Testbench;
 
+use Nette\Application\Application;
+use Nette\Http\IRequest;
+
 class TestbenchExtension extends \Nette\DI\CompilerExtension
 {
 
@@ -34,7 +37,7 @@ class TestbenchExtension extends \Nette\DI\CompilerExtension
 			$builder->removeDefinition($this->prefix('presenterMock'));
 			$builder->addDefinition($this->prefix('presenterMock'))->setClass($mockReplacement);
 		} else {
-			$builder->addDefinition($this->prefix('presenterMock'))->setClass('Testbench\Mocks\PresenterMock');
+			$builder->addDefinition($this->prefix('presenterMock'))->setClass(\Testbench\Mocks\PresenterMock::class);
 		}
 	}
 
@@ -67,22 +70,22 @@ class TestbenchExtension extends \Nette\DI\CompilerExtension
 				$extensionConfig = $extension->config;
 				$definitionName = $extension->name . '.default.connection';
 				$builder->getDefinition($definitionName)
-					->setClass('Testbench\Mocks\NetteDatabaseConnectionMock', [
-						$extensionConfig['dsn'],
-						$extensionConfig['user'],
-						$extensionConfig['password'],
-						isset($extensionConfig['options']) ? ($extensionConfig['options'] + ['lazy' => TRUE]) : [],
-					]);
+								->setFactory(\Testbench\Mocks\NetteDatabaseConnectionMock::class, [
+										$extensionConfig->dsn,
+										$extensionConfig->user,
+										$extensionConfig->password,
+										isset($extensionConfig->options) ? ($extensionConfig->options + ['lazy' => TRUE]) : [],
+				]);
 			} else {
 				foreach ($extension->config as $sectionName => $sectionConfig) {
 					$definitionName = $extension->name . '.' . $sectionName . '.connection';
 					$builder->getDefinition($definitionName)
-						->setClass('Testbench\Mocks\NetteDatabaseConnectionMock', [
-							$sectionConfig['dsn'],
-							$sectionConfig['user'],
-							$sectionConfig['password'],
-							isset($sectionConfig['options']) ? ($sectionConfig['options'] + ['lazy' => TRUE]) : [],
-						]);
+									->setFactory(\Testbench\Mocks\NetteDatabaseConnectionMock::class, [
+											$sectionConfig->dsn,
+											$sectionConfig->user,
+											$sectionConfig->password,
+											isset($sectionConfig->options) ? ($sectionConfig->options + ['lazy' => TRUE]) : [],
+					]);
 				}
 			}
 		}

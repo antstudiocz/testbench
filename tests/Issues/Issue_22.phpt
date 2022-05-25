@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Issues;
 
 require __DIR__ . '/../bootstrap.php';
@@ -14,10 +16,10 @@ class Issue_22 extends \Tester\TestCase
 
 	use \Testbench\TComponent;
 
+
 	public function testAnonymousComponentRender()
 	{
-		$control = new class extends \Nette\Application\UI\Control
-		{
+		$control = new class extends \Nette\Application\UI\Control {
 			public function render()
 			{
 				echo 'ok';
@@ -25,7 +27,6 @@ class Issue_22 extends \Tester\TestCase
 		};
 		$this->checkRenderOutput($control, 'ok');
 	}
-
 }
 
 (new Issue_22)->run();

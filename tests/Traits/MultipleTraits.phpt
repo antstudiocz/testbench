@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Traits;
 
-require getenv('BOOTSTRAP');
+require __DIR__ . '/../bootstrap.php';
+
+//require getenv('BOOTSTRAP');
 
 /**
  * @testCase

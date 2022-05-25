@@ -17,6 +17,9 @@ trait TComponent
 				if (preg_match('~class@anonymous.*~', $name)) {
 					$name = md5($name);
 				}
+				if (preg_match('~Control@anonymous.*~', $name)) {
+					$name = md5($name);
+				}
 			}
 		}
 		if (!$this->__testbench_presenterMock) {
@@ -35,7 +38,7 @@ trait TComponent
 			}
 			$presenter->addComponent($component, $name);
 		};
-		$this->__testbench_presenterMock->run(new Mocks\ApplicationRequestMock);
+		$this->__testbench_presenterMock->run(new \Nette\Application\Request('Foo'));
 	}
 
 	protected function checkRenderOutput(IComponent $control, $expected, $renderParameters = [], $renderMethod = 'render')

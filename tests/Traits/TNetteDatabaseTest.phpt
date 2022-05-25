@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Tests\Traits;
 
@@ -19,7 +20,7 @@ class TNetteDatabaseTest extends \Tester\TestCase
 	public function testLazyConnection()
 	{
 		$container = $this->getContainer();
-		$db = $container->getByType('Nette\Database\Connection');
+		$db = $container->getByType(\Nette\Database\Connection::class);
 		$db->onConnect[] = function () {
 			Assert::fail('\Nette\Database\Connection::$onConnect event should not be called if you do NOT need database');
 		};
@@ -28,7 +29,7 @@ class TNetteDatabaseTest extends \Tester\TestCase
 
 	public function testContext()
 	{
-		Assert::type('Nette\Database\Context', $this->getContext());
+		Assert::type(\Nette\Database\Context::class, $this->getContext());
 	}
 
 	public function testDatabaseCreation()
@@ -80,7 +81,9 @@ class TNetteDatabaseTest extends \Tester\TestCase
 		/** @var \Testbench\Mocks\NetteDatabaseConnectionMock $connection */
 		$connection = $this->getService(\Testbench\Mocks\NetteDatabaseConnectionMock::class);
 
-		$dbr = (new \Nette\Reflection\ClassType($connection))->getParentClass(); //:-(
+		//$dbr = (new \Nette\Reflection\ClassType($connection))->getParentClass(); //:-(
+		$rc = new \ReflectionClass($connection);
+		$dbr = $rc->getParentClass();
 		$params = $dbr->getProperty('params');
 		$params->setAccessible(TRUE);
 		$params = $params->getValue($connection);
@@ -97,7 +100,8 @@ class TNetteDatabaseTest extends \Tester\TestCase
 		}
 
 		Assert::same([
-			'PDO::MYSQL_ATTR_COMPRESS' => TRUE,
+//			'PDO::MYSQL_ATTR_COMPRESS' => TRUE, //TODO: CHCECK THIS
+			'1003' => TRUE,
 			'lazy' => TRUE,
 		], $options);
 	}
