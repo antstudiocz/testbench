@@ -50,11 +50,16 @@ class TDoctrineTest extends \Tester\TestCase
 		/** @var \Testbench\Mocks\DoctrineConnectionMock $connection */
 		$connection = $this->getEntityManager()->getConnection();
 		$result = $connection->query('SELECT * FROM table_1')->fetchAll();
-		Assert::equal([
-			['id' => '1', 'column_1' => 'value_1', 'column_2' => 'value_2'],
-			['id' => '2', 'column_1' => 'value_1', 'column_2' => 'value_2'],
-			['id' => '3', 'column_1' => 'value_1', 'column_2' => 'value_2'],
-		], $result);
+
+        Assert::same(1, intval($result[0]['id']));
+        Assert::same(2, intval($result[1]['id']));
+        Assert::same(3, intval($result[2]['id']));
+        Assert::same('value_1', $result[0]['column_1']);
+        Assert::same('value_1', $result[1]['column_1']);
+        Assert::same('value_1', $result[2]['column_1']);
+        Assert::same('value_2', $result[0]['column_2']);
+        Assert::same('value_2', $result[1]['column_2']);
+        Assert::same('value_2', $result[2]['column_2']);
 
 		if ($connection->getDatabasePlatform() instanceof MySqlPlatform) {
 			Assert::match('information_schema', $connection->getDatabase());
