@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "72e2b152d07118d8549ff4d6618f96dd",
+    "content-hash": "3a0278a5e26cf579214399a196b93abb",
     "packages": [
         {
-            "name": "ijvo/kdyby-fake-session",
-            "version": "v3.1.0",
+            "name": "antstudiocz/kdyby-fake-session",
+            "version": "v3.1.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/IJVo/Kdyby-FakeSession.git",
-                "reference": "2147717007a3ff370b17684b37fd8ab44d3bc5d2"
+                "url": "https://github.com/antstudiocz/Kdyby-FakeSession.git",
+                "reference": "72a0466365da05894684281ad5098b4bf21ccb18"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/IJVo/Kdyby-FakeSession/zipball/2147717007a3ff370b17684b37fd8ab44d3bc5d2",
-                "reference": "2147717007a3ff370b17684b37fd8ab44d3bc5d2",
+                "url": "https://api.github.com/repos/antstudiocz/Kdyby-FakeSession/zipball/72a0466365da05894684281ad5098b4bf21ccb18",
+                "reference": "72a0466365da05894684281ad5098b4bf21ccb18",
                 "shasum": ""
             },
             "require": {
@@ -57,7 +57,10 @@
                 "nette",
                 "session"
             ],
-            "time": "2021-09-21T21:19:58+00:00"
+            "support": {
+                "source": "https://github.com/antstudiocz/Kdyby-FakeSession/tree/v3.1.1"
+            },
+            "time": "2022-05-25T07:08:50+00:00"
         },
         {
             "name": "nette/application",
@@ -4406,5 +4409,5 @@
         "php": "^7.4 || ^8.0"
     },
     "platform-dev": [],
-    "plugin-api-version": "1.1.0"
+    "plugin-api-version": "2.3.0"
 }
