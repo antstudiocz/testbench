@@ -322,6 +322,9 @@ jobs:
       - run: mkdir tests/_temp
       - run: cp tests/_helpers/mysql.neon tests/tests.local.neon
       - run: src/run-tests --bootstrap tests/bootstrap.php
+
+      - run: cp tests/_helpers/mysql_sharedatabase.neon tests/tests.local.neon
+      - run: src/run-tests --bootstrap tests/bootstrap.php
       - if: failure()
         uses: actions/upload-artifact@v2
         with:

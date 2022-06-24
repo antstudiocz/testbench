@@ -27,7 +27,7 @@ migrations:
 
 testbench:
 	migrations: yes
-	shareDatabase: no
+	shareDatabase: yes
 	sqls:
 		- %testsDir%/_helpers/sqls/mysql_1.sql
 		- %testsDir%/_helpers/sqls/mysql_2.sql
