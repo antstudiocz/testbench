@@ -89,16 +89,14 @@ class DoctrineConnectionMock extends \Kdyby\Doctrine\Connection implements \Test
 			/** @var \Doctrine\Migrations\DependencyFactory $factory */
 			$factory = $container->getByType(\Doctrine\Migrations\DependencyFactory::class, FALSE);
 			if ($factory) {
-
+				$factory->getMetadataStorage()->ensureInitialized();
 				$aliasResolver = $factory->getVersionAliasResolver();
 				$migrator = $factory->getMigrator();
-
 				$calculator = $factory->getMigrationPlanCalculator();
 				$plan = $calculator->getPlanUntilVersion($aliasResolver->resolveVersionAlias('latest'));
 				$configurationFactory = $factory->getConsoleInputMigratorConfigurationFactory();
 				$input = new ArrayInput([]);
 				$migrator->migrate($plan, $configurationFactory->getMigratorConfiguration($input));
-				$factory->getMetadataStorage()->ensureInitialized();
 			}
 		}
 
