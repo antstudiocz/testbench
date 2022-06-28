@@ -8,10 +8,9 @@ use Doctrine\Common;
 use Doctrine\DBAL;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
-use Doctrine\Migrations\MigrationRepository;
-use Doctrine\Migrations\OutputWriter;
+use Doctrine\Migrations\Exception\MigrationException;
 use Nette\UnexpectedValueException;
-use Symfony\Component\Stopwatch\Stopwatch;
+use Symfony\Component\Console\Input\ArrayInput;
 
 class DoctrineConnectionMock extends \Kdyby\Doctrine\Connection implements \Testbench\Providers\IDatabaseProvider
 {
@@ -62,7 +61,7 @@ class DoctrineConnectionMock extends \Kdyby\Doctrine\Connection implements \Test
 				} else { // always create new test database
 					$this->__testbench_database_setup($connection, $container);
 				}
-			} catch (\Doctrine\Migrations\MigrationException $e) {
+			} catch (MigrationException $e) {
 				//  do not throw an exception if there are no migrations
 				if ($e->getCode() !== 4) {
 					\Tester\Assert::fail($e->getMessage());
@@ -74,9 +73,6 @@ class DoctrineConnectionMock extends \Kdyby\Doctrine\Connection implements \Test
 		parent::__construct($params, $driver, $config, $eventManager);
 	}
 
-	/** @internal
-	 * @throws DBAL\Migrations\MigrationException
-	 */
 	public function __testbench_database_setup($connection, \Nette\DI\Container $container, $persistent = FALSE)
 	{
 		$config = $container->parameters['testbench'];
@@ -90,25 +86,18 @@ class DoctrineConnectionMock extends \Kdyby\Doctrine\Connection implements \Test
 		}
 
 		if ($config['migrations'] === TRUE) {
-			if (class_exists(\Nettrine\Migrations\ContainerAwareConfiguration::class)) {
-				/** @var \Nettrine\Migrations\ContainerAwareConfiguration $migrationsConfig */
-				$migrationsConfig = $container->getByType(\Nettrine\Migrations\ContainerAwareConfiguration::class);
-				$migrationsConfig->__construct($connection);
-				$migrationsConfig->registerMigrationsFromDirectory($migrationsConfig->getMigrationsDirectory());
-				$migration = new \Doctrine\Migrations\Migrator($migrationsConfig);
-				$migration->migrate($migrationsConfig->getLatestVersion());
-			} /*else if (interface_exists(\Nextras\Migrations\IConfiguration::class)) {
-				$config = $container->getByType(\Nextras\Migrations\IConfiguration::class);
-				$finder = new \Nextras\Migrations\Engine\Finder();
-				$extensions = [1 => 'sql'];
-
-				$migrations = $finder->find($config->getGroups(), $extensions);
-				usort($migrations, array($this, "compareMigrationNames"));
-
-				foreach ($migrations as $migration) {
-					\Kdyby\Doctrine\Dbal\BatchImport\Helpers::loadFromFile($connection, $migration->path);
-				}
-			}*/  //TODO: CHCECK THIS
+			/** @var \Doctrine\Migrations\DependencyFactory $factory */
+			$factory = $container->getByType(\Doctrine\Migrations\DependencyFactory::class, FALSE);
+			if ($factory) {
+				$factory->getMetadataStorage()->ensureInitialized();
+				$aliasResolver = $factory->getVersionAliasResolver();
+				$migrator = $factory->getMigrator();
+				$calculator = $factory->getMigrationPlanCalculator();
+				$plan = $calculator->getPlanUntilVersion($aliasResolver->resolveVersionAlias('latest'));
+				$configurationFactory = $factory->getConsoleInputMigratorConfigurationFactory();
+				$input = new ArrayInput([]);
+				$migrator->migrate($plan, $configurationFactory->getMigratorConfiguration($input));
+			}
 		}
 
 		if ($persistent === FALSE) {
