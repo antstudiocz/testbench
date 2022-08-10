@@ -13,9 +13,6 @@ class TransactionalTestCase extends TestCase
 		getEntityManager as private getEM;
 	}
 
-	/** @var bool */
-	private $silent = FALSE;
-
 	protected function setUp()
 	{
 		parent::setUp();
@@ -25,25 +22,15 @@ class TransactionalTestCase extends TestCase
 	protected function tearDown()
 	{
 		parent::tearDown();
-		if ($this->silent) {
-			try {
-				$this->getEM()->rollback();
-			}
-
-			catch (\Exception $e) {
-				//silent only no data to rollback
-				if ($e->getMessage() . '.' != ConnectionException::noActiveTransaction()->getMessage()) {
-					throw $e;
-				}
-			}
-		} else {
+		try {
 			$this->getEM()->rollback();
 		}
-	}
-
-	public function setSilentTransaction()
-	{
-		$this->silent = TRUE;
+		catch (\Exception $e) {
+			//silent only no data to rollback
+			if ($e->getMessage() . '.' != ConnectionException::noActiveTransaction()->getMessage()) {
+				throw $e;
+			}
+		}
 	}
 
 }
