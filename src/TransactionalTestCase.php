@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Testbench;
 
+use Doctrine\DBAL\ConnectionException;
 use Tester\TestCase;
 
 class TransactionalTestCase extends TestCase
@@ -21,7 +22,15 @@ class TransactionalTestCase extends TestCase
 	protected function tearDown()
 	{
 		parent::tearDown();
-		$this->getEM()->rollback();
+		try {
+			$this->getEM()->rollback();
+		}
+		catch (\PDOException $e) {
+			//silent only no data to rollback
+			if ($e->getMessage() . '.' != ConnectionException::noActiveTransaction()->getMessage()) {
+				throw $e;
+			}
+		}
 	}
 
 }
