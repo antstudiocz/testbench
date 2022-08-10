@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Testbench;
 
-use Nette\Http\Request;
+use Nette\Http\UrlScript;
 use Tester\Assert;
 use Tester\Dumper;
 
@@ -202,7 +202,8 @@ trait TPresenter
 			}
 
 			if ($path) {
-				if (!Assert::isMatching("~^https?://test\.bench{$path}(?(?=\?).+)$~", $response->getUrl())) {
+				$urlScript = new UrlScript($response->getUrl());
+				if (!Assert::isMatching("~^{$path}(?(?=\?).+)$~", $urlScript->basePath)) {
 					$path = Dumper::color('yellow') . Dumper::toLine($path) . Dumper::color('white');
 					$url = Dumper::color('yellow') . Dumper::toLine($response->getUrl()) . Dumper::color('white');
 					$originalUrl = new \Nette\Http\Url($response->getUrl());
