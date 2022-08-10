@@ -25,7 +25,7 @@ class TransactionalTestCase extends TestCase
 		try {
 			$this->getEM()->rollback();
 		}
-		catch (\Exception $e) {
+		catch (\PDOException $e) {
 			//silent only no data to rollback
 			if ($e->getMessage() . '.' != ConnectionException::noActiveTransaction()->getMessage()) {
 				throw $e;
