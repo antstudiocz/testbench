@@ -203,7 +203,7 @@ trait TPresenter
 
 			if ($path) {
 				$urlScript = new UrlScript($response->getUrl());
-				if (!Assert::isMatching("~^{$path}(?(?=\?).+)$~", $urlScript->basePath)) {
+				if (!Assert::isMatching("~^{$path}(?(?=\?).+)$~", $urlScript->getPath())) {
 					$path = Dumper::color('yellow') . Dumper::toLine($path) . Dumper::color('white');
 					$url = Dumper::color('yellow') . Dumper::toLine($response->getUrl()) . Dumper::color('white');
 					$originalUrl = new \Nette\Http\Url($response->getUrl());
