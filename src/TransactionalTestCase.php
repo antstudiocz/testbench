@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Testbench;
 
+use Doctrine\DBAL\ConnectionException;
 use Tester\TestCase;
 
 class TransactionalTestCase extends TestCase
@@ -11,6 +12,9 @@ class TransactionalTestCase extends TestCase
 	use TDoctrine {
 		getEntityManager as private getEM;
 	}
+
+	/** @var bool */
+	private $silent = FALSE;
 
 	protected function setUp()
 	{
@@ -21,7 +25,25 @@ class TransactionalTestCase extends TestCase
 	protected function tearDown()
 	{
 		parent::tearDown();
-		$this->getEM()->rollback();
+		if ($this->silent) {
+			try {
+				$this->getEM()->rollback();
+			}
+
+			catch (\Exception $e) {
+				//silent only no data to rollback
+				if ($e->getMessage() . '.' != ConnectionException::noActiveTransaction()->getMessage()) {
+					throw $e;
+				}
+			}
+		} else {
+			$this->getEM()->rollback();
+		}
+	}
+
+	public function setSilentTransaction()
+	{
+		$this->silent = TRUE;
 	}
 
 }
